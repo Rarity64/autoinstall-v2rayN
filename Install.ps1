@@ -156,8 +156,8 @@ if ($ConfigFile) {
     Start-Sleep -Seconds 2
 
     Write-Host ""
-    Write-Host "Done. Configs from '$ConfigFile' were copied to the clipboard." -ForegroundColor Green
-    Write-Host "In the main v2rayN window, press Ctrl+V (or Servers -> Import bulk URL from clipboard)" -ForegroundColor Green
+    Write-Host "Done. Configs from '$ConfigFile' were copied to the clipboard and pasted into the v2rayN window." -ForegroundColor Green
+    Write-Host "Otherwise, in the main v2rayN window, press Ctrl+V (or Configuration -> Import Share Links from clipboard)" -ForegroundColor Green
     Write-Host "to add the servers." -ForegroundColor Green
 }
 else {

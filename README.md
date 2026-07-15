@@ -3,6 +3,8 @@
 A PowerShell script that downloads and sets up the latest portable release of
 [v2rayN](https://github.com/2dust/v2rayN) (Windows x64) with no manual steps.
 
+<img src="./extras/demo.gif" width="754">
+
 ## What it does
 
 1. Queries the GitHub API for the **latest** v2rayN release and downloads
