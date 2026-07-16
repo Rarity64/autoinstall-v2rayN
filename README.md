@@ -5,6 +5,17 @@ A PowerShell script that downloads and sets up the latest portable release of
 
 <img src="./extras/demo.gif" width="754">
 
+## Problem
+
+When helping users with Windows install v2rayN, it
+requires opening a browser, navigating to GitHub, finding the latest v2rayN
+release, and then adding configs. This case can happen many times.
+
+## Solution
+
+Every step can be automated using PowerShell 5, since it comes pre-installed
+by default on every Windows system.
+
 ## What it does
 
 1. Queries the GitHub API for the **latest** v2rayN release and downloads
