@@ -52,7 +52,7 @@ powershell -ExecutionPolicy Bypass -File .\Install-V2rayN.ps1
 ### Basic install
 
 ```powershell
-.\Install-V2rayN.ps1
+.\Install.ps1
 ```
 
 This downloads the latest release, extracts it into a `v2rayN` folder next
@@ -61,10 +61,10 @@ to the script, and creates a desktop shortcut.
 ### Install with server configs
 
 ```powershell
-.\Install-V2rayN.ps1 -ConfigFile "C:\configs\servers.txt"
+.\Install.ps1 -ConfigFile "config.txt"
 ```
 
-`servers.txt` should contain one config link per line, e.g.:
+`config.txt` should contain one config link per line, e.g.:
 
 ```
 vmess://...
@@ -73,8 +73,8 @@ trojan://...
 ```
 
 The script copies the file's contents to the clipboard and launches v2rayN.
-In the main v2rayN window, press **Ctrl+V** (or go to **Servers → Import
-bulk URL from clipboard**) to add the servers — this is v2rayN's own
+In the main v2rayN window, press **Ctrl+V** (or go to **Configuration → Import 
+Share Links from clipboard**) to add the servers — this is v2rayN's own
 built-in import feature, so no internal files are modified directly.
 
 ## Notes

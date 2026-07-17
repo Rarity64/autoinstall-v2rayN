@@ -3,7 +3,7 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 0. OPTIONAL: Create a config.txt file (or any other text file) and add your configuration.
 1. Run the following command in PowerShell: 
-.\Install.ps1 config.txt
+.\Install.ps1 -ConfigFile config.txt
 
 1.1 To run the script without a config, use:
  .\Install.ps1
