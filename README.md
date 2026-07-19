@@ -1,4 +1,6 @@
-# v2rayN Installer Script
+# autoinstall-v2rayN
+
+Read in [Russian](./README_RU.md)
 
 A PowerShell script that downloads and sets up the latest portable release of
 [v2rayN](https://github.com/2dust/v2rayN) (Windows x64) with no manual steps.
@@ -13,7 +15,7 @@ release, and then adding configs. This case can happen many times.
 
 ## Solution
 
-Every step can be automated using PowerShell 5, since it comes pre-installed
+Every step can be automated using PowerShell 5+, since it comes pre-installed
 by default on every Windows system.
 
 ## What it does
@@ -46,10 +48,10 @@ scripts from remote sources. If you'd rather not change the policy globally,
 you can bypass it for a single run instead:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\Install-V2rayN.ps1
+powershell -ExecutionPolicy Bypass -File .\Install.ps1
 ```
 
-### Basic install
+### Running
 
 ```powershell
 .\Install.ps1
@@ -58,7 +60,7 @@ powershell -ExecutionPolicy Bypass -File .\Install-V2rayN.ps1
 This downloads the latest release, extracts it into a `v2rayN` folder next
 to the script, and creates a desktop shortcut.
 
-### Install with server configs
+### Running with server configs
 
 ```powershell
 .\Install.ps1 -ConfigFile "config.txt"
@@ -73,7 +75,7 @@ trojan://...
 ```
 
 The script copies the file's contents to the clipboard and launches v2rayN.
-In the main v2rayN window, press **Ctrl+V** (or go to **Configuration → Import 
+In the main v2rayN window, press **Ctrl+V** (or go to **Configuration → Import
 Share Links from clipboard**) to add the servers — this is v2rayN's own
 built-in import feature, so no internal files are modified directly.
 
