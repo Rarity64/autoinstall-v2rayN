@@ -21,7 +21,7 @@ v2rayN, скачать его, а потом добавить конфиги. Э
 ## Что делает
 
 1. Запрос к GitHub API к последнему релизу v2rayN и загружает
-`v2rayN-windows-64.zip` — версия не захардкожена.
+`v2rayN-windows-64.zip` — версия не жестко задана.
 2. Распаковывает архив, используя командлет `Expand-Archive` (без дополнительных
 инструментов).
 3. Устанавливает v2rayN ниже по уровню, откуда был запущен скрипт.
@@ -73,11 +73,6 @@ vmess://...
 vless://...
 trojan://...
 ```
-
-The script copies the file's contents to the clipboard and launches v2rayN.
-In the main v2rayN window, press **Ctrl+V** (или в меню **Configuration → Import
-Share Links from clipboard**) to add the servers — this is v2rayN's own
-built-in import feature, so no internal files are modified directly.
 
 Скрипт копирует содержимое файла в буфер обмена и запускает v2rayN.
 В окне v2rayN используйте **Ctrl+V** (или в меню **Configuration → Import

@@ -46,14 +46,14 @@ function Write-Step {
     Write-Host "==> $Message" -ForegroundColor Cyan
 }
 
-# --- Validate ConfigFile early so we don't waste time downloading on a typo ---
+# Validate ConfigFile early so we don't waste time downloading on a typo
 if ($ConfigFile) {
     if (-not (Test-Path -LiteralPath $ConfigFile -PathType Leaf)) {
         throw "Config file not found: $ConfigFile"
     }
 }
 
-# --- Target folder — next to the script ---
+# Target folder — next to the script
 $root = $PSScriptRoot
 if ([string]::IsNullOrEmpty($root)) { $root = (Get-Location).Path }
 
@@ -62,7 +62,7 @@ $zipPath    = Join-Path $root 'v2rayN-windows-64.zip'
 
 Write-Host "Install directory: $installDir"
 
-# --- Find the latest release via GitHub API ---
+# Find the latest release via GitHub API
 Write-Step "Fetching latest v2rayN release info..."
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
@@ -85,11 +85,11 @@ $downloadUrl = $asset.browser_download_url
 Write-Host "Version: $($release.tag_name)"
 Write-Host "URL: $downloadUrl"
 
-# --- Download ---
+# Download
 Write-Step "Downloading archive..."
 Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -UseBasicParsing
 
-# --- Extract using built-in Windows tooling ---
+# Extract using built-in Windows tooling
 if (-not (Test-Path -LiteralPath $installDir)) {
     New-Item -ItemType Directory -Path $installDir | Out-Null
 }
@@ -121,7 +121,7 @@ if ($topItems.Count -eq 1 -and $topItems[0].PSIsContainer) {
     Remove-Item -LiteralPath $nested -Force -Recurse
 }
 
-# --- Locate the executable ---
+# Locate the executable
 $exePath = Get-ChildItem -LiteralPath $installDir -Filter 'v2rayN.exe' -Recurse |
     Select-Object -First 1 -ExpandProperty FullName
 
@@ -130,7 +130,7 @@ if (-not $exePath) {
 }
 Write-Host "v2rayN installed at: $exePath"
 
-# --- Desktop shortcut ---
+# Desktop shortcut
 Write-Step "Creating desktop shortcut..."
 $desktop      = [Environment]::GetFolderPath('Desktop')
 $shortcutPath = Join-Path $desktop 'v2rayN.lnk'
@@ -145,7 +145,7 @@ $shortcut.Save()
 
 Write-Host "Shortcut created: $shortcutPath"
 
-# --- Optional config import via clipboard ---
+# Optional config import via clipboard
 if ($ConfigFile) {
     Write-Step "Copying configs to clipboard..."
     $content = Get-Content -LiteralPath $ConfigFile -Raw
