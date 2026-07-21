@@ -4,18 +4,18 @@
 
 .DESCRIPTION
     1. Запрашивает GitHub API для получения последнего релиза 2dust/v2rayN и
-       загружает именно архив v2rayN-windows-64.zip (без жёстко заданной версии).
+       загружает именно архив v2rayN-windows-64.zip (без жестко заданной версии).
     2. Распаковывает архив встроенным командлетом PowerShell (Expand-Archive).
     3. Опционально принимает путь к текстовому файлу со ссылками конфигураций
        (vmess://, vless://, ss://, trojan:// и т.д., по одной на строку) и
        копирует их в буфер обмена — это собственный механизм массового импорта
-       v2rayN (Серверы -> Импорт из буфера обмена (Import bulk URL from
-       clipboard), либо Ctrl+V в главном окне). Скрипт не трогает внутренние
-       файлы базы данных v2rayN (guiNConfig.json/guiNDB.db) — их формат не
-       документирован, и прямое редактирование рискует повредить профиль.
+       v2rayN (Configuration → Import Share Links from clipboard), либо Ctrl+V 
+       в главном окне). Скрипт не трогает внутренние файлы базы данных v2rayN 
+       (guiNConfig.json/guiNDB.db) — их формат не документирован, и прямое 
+       редактирование рискует повредить профиль.
     4. Создаёт ярлык v2rayN.exe на рабочем столе.
 
-    Папка v2rayN создаётся рядом со скриптом ($PSScriptRoot), а не в текущей
+    Папка v2rayN создается рядом со скриптом ($PSScriptRoot), а не в текущей
     директории терминала — это делает поведение предсказуемым независимо от
     того, откуда скрипт был запущен.
 
@@ -23,10 +23,10 @@
     Путь к текстовому файлу со ссылками конфигураций (по одной на строку).
 
 .EXAMPLE
-    .\Install-V2rayN.ps1
+    .\Install.ps1
 
 .EXAMPLE
-    .\Install-V2rayN.ps1 -ConfigFile "C:\configs\servers.txt"
+    .\Install.ps1 -ConfigFile "config.txt"
 
 .NOTES
     Возможно, потребуется разрешить выполнение скриптов:
@@ -46,14 +46,14 @@ function Write-Step {
     Write-Host "==> $Message" -ForegroundColor Cyan
 }
 
-# --- Проверяем ConfigFile заранее, чтобы не тратить время на загрузку из-за опечатки ---
+# Проверяем ConfigFile заранее, чтобы не тратить время на загрузку из-за опечатки
 if ($ConfigFile) {
     if (-not (Test-Path -LiteralPath $ConfigFile -PathType Leaf)) {
         throw "Файл конфигурации не найден: $ConfigFile"
     }
 }
 
-# --- Целевая папка — рядом со скриптом ---
+# Целевая папка — рядом со скриптом
 $root = $PSScriptRoot
 if ([string]::IsNullOrEmpty($root)) { $root = (Get-Location).Path }
 
@@ -62,7 +62,7 @@ $zipPath    = Join-Path $root 'v2rayN-windows-64.zip'
 
 Write-Host "Папка установки: $installDir"
 
-# --- Находим последний релиз через GitHub API ---
+# Находим последний релиз через GitHub API
 Write-Step "Получаем информацию о последнем релизе v2rayN..."
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 
@@ -85,11 +85,11 @@ $downloadUrl = $asset.browser_download_url
 Write-Host "Версия: $($release.tag_name)"
 Write-Host "URL: $downloadUrl"
 
-# --- Загрузка ---
+# Загрузка
 Write-Step "Загружаем архив..."
 Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -UseBasicParsing
 
-# --- Извлечение встроенными средствами Windows ---
+# Извлечение встроенными средствами Windows
 if (-not (Test-Path -LiteralPath $installDir)) {
     New-Item -ItemType Directory -Path $installDir | Out-Null
 }
@@ -121,7 +121,7 @@ if ($topItems.Count -eq 1 -and $topItems[0].PSIsContainer) {
     Remove-Item -LiteralPath $nested -Force -Recurse
 }
 
-# --- Поиск исполняемого файла ---
+# Поиск исполняемого файла
 $exePath = Get-ChildItem -LiteralPath $installDir -Filter 'v2rayN.exe' -Recurse |
     Select-Object -First 1 -ExpandProperty FullName
 
@@ -130,7 +130,7 @@ if (-not $exePath) {
 }
 Write-Host "v2rayN установлен в: $exePath"
 
-# --- Ярлык на рабочем столе ---
+# Ярлык на рабочем столе
 Write-Step "Создаём ярлык на рабочем столе..."
 $desktop      = [Environment]::GetFolderPath('Desktop')
 $shortcutPath = Join-Path $desktop 'v2rayN.lnk'
@@ -145,7 +145,7 @@ $shortcut.Save()
 
 Write-Host "Ярлык создан: $shortcutPath"
 
-# --- Опциональный импорт конфигураций через буфер обмена ---
+# Опциональный импорт конфигураций через буфер обмена
 if ($ConfigFile) {
     Write-Step "Копируем конфигурации в буфер обмена..."
     $content = Get-Content -LiteralPath $ConfigFile -Raw
