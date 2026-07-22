@@ -5,7 +5,7 @@ Read in [English](./README.md)
 PowerShell-скрипт, который скачивает и устанавливает последнюю портативную
 версию [v2rayN](https://github.com/2dust/v2rayN) (Windows x64) самостоятельно.
 
-<img src="./extras/demo.gif" width="754">
+<img src="./extras/demo.gif" width="896">
 
 ## Проблема
 

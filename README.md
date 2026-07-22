@@ -5,7 +5,7 @@ Read in [Russian](./README_RU.md)
 A PowerShell script that downloads and sets up the latest portable release of
 [v2rayN](https://github.com/2dust/v2rayN) (Windows x64) with no manual steps.
 
-<img src="./extras/demo.gif" width="754">
+<img src="./extras/demo.gif" width="896">
 
 ## Problem
 
