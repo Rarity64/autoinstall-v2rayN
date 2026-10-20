@@ -1,6 +1,6 @@
 # autoinstall-v2rayN
 
-English | [Russian](./README_RU.md)
+English | [Русский](./README_RU.md)
 
 A PowerShell script that downloads and sets up the latest portable release of
 [v2rayN](https://github.com/2dust/v2rayN) (Windows x64) with no manual steps.

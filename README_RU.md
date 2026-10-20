@@ -1,6 +1,6 @@
 # PowerShell-скрипт по автоустановке v2rayn
 
-[English](./README.md) | Russian
+[English](./README.md) | Русский
 
 PowerShell-скрипт, который скачивает и устанавливает последнюю портативную
 версию [v2rayN](https://github.com/2dust/v2rayN) (Windows x64) самостоятельно.
