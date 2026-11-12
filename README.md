@@ -22,11 +22,13 @@ by default on every Windows system.
 
 1. Queries the GitHub API for the **latest** v2rayN release and downloads
    `v2rayN-windows-64.zip` — the version number is never hardcoded.
-2. Extracts the archive with the built-in `Expand-Archive` cmdlet (no extra
+2. Verifies the archive's **SHA-256 checksum** against the digest published in
+   the GitHub release metadata and aborts if it doesn't match.
+3. Extracts the archive with the built-in `Expand-Archive` cmdlet (no extra
    tools required).
-3. Installs into a `v2rayN` folder created **next to the script**.
-4. Creates a `v2rayN.lnk` shortcut on the Desktop.
-5. Optionally imports a list of server configs via the clipboard.
+4. Installs into a `v2rayN` folder created **next to the script**.
+5. Creates a `v2rayN.lnk` shortcut on the Desktop.
+6. Optionally imports a list of server configs via the clipboard.
 
 ## Requirements
 

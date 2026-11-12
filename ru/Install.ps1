@@ -5,15 +5,17 @@
 .DESCRIPTION
     1. Запрашивает GitHub API для получения последнего релиза 2dust/v2rayN и
        загружает именно архив v2rayN-windows-64.zip (без жестко заданной версии).
-    2. Распаковывает архив встроенным командлетом PowerShell (Expand-Archive).
-    3. Опционально принимает путь к текстовому файлу со ссылками конфигураций
+    2. Проверяет контрольную сумму SHA-256 архива по хешу из метаданных релиза
+       на GitHub и прерывает установку при несовпадении.
+    3. Распаковывает архив встроенным командлетом PowerShell (Expand-Archive).
+    4. Опционально принимает путь к текстовому файлу со ссылками конфигураций
        (vmess://, vless://, ss://, trojan:// и т.д., по одной на строку) и
        копирует их в буфер обмена — это собственный механизм массового импорта
        v2rayN (Configuration → Import Share Links from clipboard), либо Ctrl+V 
        в главном окне). Скрипт не трогает внутренние файлы базы данных v2rayN 
        (guiNConfig.json/guiNDB.db) — их формат не документирован, и прямое 
        редактирование рискует повредить профиль.
-    4. Создаёт ярлык v2rayN.exe на рабочем столе.
+    5. Создаёт ярлык v2rayN.exe на рабочем столе.
 
     Папка v2rayN создается рядом со скриптом ($PSScriptRoot), а не в текущей
     директории терминала — это делает поведение предсказуемым независимо от
@@ -88,6 +90,22 @@ Write-Host "URL: $downloadUrl"
 # Загрузка
 Write-Step "Загружаем архив..."
 Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -UseBasicParsing
+
+# Проверка SHA-256 по хешу, опубликованному в метаданных релиза на GitHub
+Write-Step "Проверяем контрольную сумму SHA-256..."
+if ($asset.digest -match '^sha256:([0-9a-fA-F]{64})$') {
+    $expectedHash = $Matches[1].ToUpperInvariant()
+    $actualHash   = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash
+
+    if ($actualHash -ne $expectedHash) {
+        Remove-Item -LiteralPath $zipPath -Force
+        throw "Контрольная сумма SHA-256 для $($asset.name) не совпадает! Ожидалось: $expectedHash, получено: $actualHash. Файл удалён."
+    }
+    Write-Host "Контрольная сумма совпадает: $actualHash" -ForegroundColor Green
+}
+else {
+    Write-Warning "В релизе нет хеша SHA-256 для $($asset.name); проверка пропущена."
+}
 
 # Извлечение встроенными средствами Windows
 if (-not (Test-Path -LiteralPath $installDir)) {

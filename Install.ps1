@@ -5,15 +5,17 @@
 .DESCRIPTION
     1. Queries the GitHub API for the latest 2dust/v2rayN release and downloads
        the v2rayN-windows-64.zip asset specifically (no hardcoded version).
-    2. Extracts the archive using a built-in PowerShell cmdlet (Expand-Archive).
-    3. Optionally accepts a path to a text file with config links
+    2. Verifies the archive's SHA-256 checksum against the digest published in
+       the GitHub release metadata and aborts on mismatch.
+    3. Extracts the archive using a built-in PowerShell cmdlet (Expand-Archive).
+    4. Optionally accepts a path to a text file with config links
        (vmess://, vless://, ss://, trojan://, etc., one per line) and copies
        them to the clipboard — this is v2rayN's own bulk-import mechanism
        (Servers -> Import bulk URL from clipboard, or Ctrl+V in the main
        window). The script does not touch v2rayN's internal database files
        (guiNConfig.json/guiNDB.db) — their format is undocumented and editing
        them directly risks corrupting the profile.
-    4. Creates a v2rayN.exe shortcut on the desktop.
+    5. Creates a v2rayN.exe shortcut on the desktop.
 
     The v2rayN folder is created next to the script ($PSScriptRoot), not in
     the terminal's current directory — this keeps behavior predictable
@@ -88,6 +90,22 @@ Write-Host "URL: $downloadUrl"
 # Download
 Write-Step "Downloading archive..."
 Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -UseBasicParsing
+
+# Verify SHA-256 against the digest published in the GitHub release metadata
+Write-Step "Verifying SHA-256 checksum..."
+if ($asset.digest -match '^sha256:([0-9a-fA-F]{64})$') {
+    $expectedHash = $Matches[1].ToUpperInvariant()
+    $actualHash   = (Get-FileHash -LiteralPath $zipPath -Algorithm SHA256).Hash
+
+    if ($actualHash -ne $expectedHash) {
+        Remove-Item -LiteralPath $zipPath -Force
+        throw "SHA-256 mismatch for $($asset.name)! Expected: $expectedHash, got: $actualHash. The file was deleted."
+    }
+    Write-Host "Checksum OK: $actualHash" -ForegroundColor Green
+}
+else {
+    Write-Warning "The release has no SHA-256 digest for $($asset.name); skipping verification."
+}
 
 # Extract using built-in Windows tooling
 if (-not (Test-Path -LiteralPath $installDir)) {
