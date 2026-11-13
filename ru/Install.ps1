@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     Скрипт установки v2rayN (portable, x64) для Windows.
 
