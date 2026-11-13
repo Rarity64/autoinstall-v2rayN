@@ -10,9 +10,9 @@ Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 1.2 Если данная ошибка появляется, пока архив скачивается:
 
-`Invoke-WebRequest: C:\Users\edsuy\Desktop\autoinstall-v2rayN\Install.ps1:90
+`Invoke-WebRequest: C:\Users\edsuy\Desktop\autoinstall-v2rayN\Install.ps1:92
 Line |
-  90 |  Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -UseBasicParsin …
+  92 |  Invoke-WebRequest -Uri $downloadUrl -OutFile $zipPath -UseBasicParsin …
      |  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
      | Unable to read data from the transport connection: An existing connection was forcibly closed by the remote host.'
 
