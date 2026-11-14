@@ -7,7 +7,10 @@
        загружает именно архив v2rayN-windows-64.zip (без жестко заданной версии).
     2. Проверяет контрольную сумму SHA-256 архива по хешу из метаданных релиза
        на GitHub и прерывает установку при несовпадении.
-    3. Распаковывает архив встроенным командлетом PowerShell (Expand-Archive).
+    3. Распаковывает архив встроенным командлетом PowerShell (Expand-Archive)
+       во временную папку. Если v2rayN уже установлен, создаёт резервную копию
+       пользовательских настроек (guiConfigs) в v2rayN-backups\<дата-время>,
+       а затем обновляет файлы программы, не трогая настройки.
     4. Опционально принимает путь к текстовому файлу со ссылками конфигураций
        (vmess://, vless://, ss://, trojan:// и т.д., по одной на строку) и
        копирует их в буфер обмена — это собственный механизм массового импорта
@@ -107,45 +110,90 @@ else {
     Write-Warning "В релизе нет хеша SHA-256 для $($asset.name); проверка пропущена."
 }
 
-# Извлечение встроенными средствами Windows
-if (-not (Test-Path -LiteralPath $installDir)) {
-    New-Item -ItemType Directory -Path $installDir | Out-Null
+# Сначала распаковываем во временную папку, чтобы неудачная или неполная
+# распаковка никогда не затронула существующую установку
+$stagingDir = Join-Path $root 'v2rayN.staging'
+if (Test-Path -LiteralPath $stagingDir) {
+    Remove-Item -LiteralPath $stagingDir -Recurse -Force
 }
-else {
-    Write-Host "Папка $installDir уже существует — её содержимое будет обновлено." -ForegroundColor Yellow
-}
+New-Item -ItemType Directory -Path $stagingDir | Out-Null
 
 Write-Step "Распаковываем архив..."
 if (Get-Command Expand-Archive -ErrorAction SilentlyContinue) {
     # Встроенный командлет, доступен в PowerShell 5.0+ (Windows 10 и новее из коробки)
-    Expand-Archive -LiteralPath $zipPath -DestinationPath $installDir -Force
+    Expand-Archive -LiteralPath $zipPath -DestinationPath $stagingDir -Force
 }
 else {
     # Резервный вариант для очень старых систем без Expand-Archive
     $shell = New-Object -ComObject Shell.Application
     $zip   = $shell.NameSpace($zipPath)
-    $dest  = $shell.NameSpace($installDir)
+    $dest  = $shell.NameSpace($stagingDir)
     $dest.CopyHere($zip.Items(), 4 + 16) # 4 = без диалога прогресса, 16 = "да для всех"
     Start-Sleep -Seconds 2
 }
 
 Remove-Item -LiteralPath $zipPath -Force
 
-# Если архив содержит одну вложенную папку — разворачиваем её содержимое наружу
-$topItems = Get-ChildItem -LiteralPath $installDir
+# Архив релиза содержит одну вложенную папку (v2rayN-windows-64) — берём её содержимое
+$sourceDir = $stagingDir
+$topItems  = @(Get-ChildItem -LiteralPath $stagingDir)
 if ($topItems.Count -eq 1 -and $topItems[0].PSIsContainer) {
-    $nested = $topItems[0].FullName
-    Get-ChildItem -LiteralPath $nested | Move-Item -Destination $installDir -Force
-    Remove-Item -LiteralPath $nested -Force -Recurse
+    $sourceDir = $topItems[0].FullName
+}
+if (-not (Test-Path -LiteralPath (Join-Path $sourceDir 'v2rayN.exe') -PathType Leaf)) {
+    throw "v2rayN.exe не найден в скачанном архиве. Проверьте содержимое папки: $stagingDir"
 }
 
-# Поиск исполняемого файла
-$exePath = Get-ChildItem -LiteralPath $installDir -Filter 'v2rayN.exe' -Recurse |
-    Select-Object -First 1 -ExpandProperty FullName
+# Пользовательские данные (настройки, серверы, подписки) хранятся в guiConfigs
+$userDataDirName = 'guiConfigs'
+$userDataDir     = Join-Path $installDir $userDataDirName
+$backupDir       = $null
 
-if (-not $exePath) {
-    throw "v2rayN.exe не найден после распаковки. Проверьте содержимое папки: $installDir"
+if (Test-Path -LiteralPath $installDir) {
+    Write-Host "Найдена существующая установка в $installDir — она будет обновлена." -ForegroundColor Yellow
+
+    # Файлы запущенного v2rayN заблокированы и не могут быть заменены
+    $running = Get-Process -Name 'v2rayN' -ErrorAction SilentlyContinue |
+        Where-Object { $_.Path -and $_.Path.StartsWith("$installDir\", [StringComparison]::OrdinalIgnoreCase) }
+    if ($running) {
+        Remove-Item -LiteralPath $stagingDir -Recurse -Force
+        throw "v2rayN запущен из $installDir. Закройте его (значок в трее -> Exit) и запустите скрипт ещё раз."
+    }
+
+    if (Test-Path -LiteralPath $userDataDir) {
+        Write-Step "Создаём резервную копию настроек..."
+        $backupDir = Join-Path (Join-Path $root 'v2rayN-backups') (Get-Date -Format 'yyyyMMdd-HHmmss')
+        New-Item -ItemType Directory -Path $backupDir | Out-Null
+        Copy-Item -LiteralPath $userDataDir -Destination $backupDir -Recurse -Force
+        Write-Host "Резервная копия создана: $backupDir"
+    }
 }
+else {
+    New-Item -ItemType Directory -Path $installDir | Out-Null
+}
+
+# Копируем новые файлы программы поверх установки. guiConfigs никогда не
+# перезаписывается, даже если будущий релиз начнёт поставлять свою версию.
+Write-Step "Устанавливаем файлы..."
+try {
+    Get-ChildItem -LiteralPath $sourceDir |
+        Where-Object { -not ($backupDir -and $_.Name -eq $userDataDirName) } |
+        Copy-Item -Destination $installDir -Recurse -Force
+}
+catch {
+    Write-Host ""
+    Write-Host "Обновление не удалось: $($_.Exception.Message)" -ForegroundColor Red
+    if ($backupDir) {
+        Write-Host "Ваши настройки сохранены в резервной копии: $backupDir" -ForegroundColor Yellow
+        Write-Host "Чтобы восстановить их, скопируйте папку '$userDataDirName' оттуда в $installDir" -ForegroundColor Yellow
+    }
+    throw
+}
+finally {
+    Remove-Item -LiteralPath $stagingDir -Recurse -Force -ErrorAction SilentlyContinue
+}
+
+$exePath = Join-Path $installDir 'v2rayN.exe'
 Write-Host "v2rayN установлен в: $exePath"
 
 # Ярлык на рабочем столе

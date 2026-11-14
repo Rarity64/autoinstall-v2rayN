@@ -83,7 +83,13 @@ built-in import feature, so no internal files are modified directly.
 
 ## Notes
 
-- Re-running the script updates the existing `v2rayN` folder in place.
+- Re-running the script updates the existing `v2rayN` folder and keeps your
+  settings and servers. Before updating, the `guiConfigs` folder (where
+  v2rayN stores all user data) is backed up to
+  `v2rayN-backups\<yyyyMMdd-HHmmss>` next to the script, and it is never
+  overwritten during the update. To roll back, copy `guiConfigs` from a
+  backup into the `v2rayN` folder. Close v2rayN before updating, otherwise
+  the script stops without changing anything.
 - If Windows SmartScreen flags the downloaded executable, that's expected
   for unsigned third-party builds — this is a property of the upstream
   release, not of this script.

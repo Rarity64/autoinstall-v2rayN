@@ -21,6 +21,10 @@ Line |
 1.3 If the script stops with "SHA-256 mismatch", the downloaded archive was corrupted
 or altered. It is deleted automatically — just run the script again.
 
+1.4 To update v2rayN, close it (tray icon -> Exit) and run the script again.
+Your settings and servers are kept; a backup of the guiConfigs folder is saved
+to v2rayN-backups\<date-time> next to the script.
+
 2. Once the installation is complete, v2rayN will launch automatically. 
 Note: A shortcut to v2rayN will also be created on the desktop.
 
